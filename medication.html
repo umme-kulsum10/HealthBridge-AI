@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication - HealthBridge AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/settings.js"></script>
+</head>
+<body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Close menu">✕</button>
+            <div class="brand"><span class="brand-mark">🏥</span> HealthBridge AI</div>
+            <nav class="nav-group">
+                <a class="nav-link" data-page="dashboard.html" href="dashboard.html">🏠 Dashboard</a>
+                <a class="nav-link" data-page="profile.html" href="profile.html">👤 Patient Profile</a>
+                <a class="nav-link" data-page="medication.html" href="medication.html">💊 Medication</a>
+                <a class="nav-link" data-page="communication.html" href="communication.html">💬 Communication</a>
+                <a class="nav-link" data-page="documents.html" href="documents.html">📄 Documents</a>
+                <a class="nav-link" data-page="voice.html" href="voice.html">🎤 Voice Assistant</a>
+                <a class="nav-link" data-page="settings.html" href="settings.html">⚙️ Settings</a>
+            </nav>
+            <div class="sidebar-foot">Prototype · not clinical software</div>
+        </aside>
+        <div class="app-main">
+            <header class="app-header">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Open menu">☰</button>
+                    <div class="header-left">
+                        <h1>Medication</h1>
+                        <p>Reminders stored in this browser</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <a class="btn btn-ghost" href="dashboard.html">← Back to Dashboard</a>
+                    <button class="icon-btn" id="notificationBell" type="button" aria-label="Notifications">🔔<span class="badge" id="notificationBadge" hidden>0</span></button>
+                    <div class="notification-panel" id="notificationPanel"><strong>Notifications</strong><div id="notificationList"></div></div>
+                    <a class="user-chip" href="profile.html"><span class="avatar">👤</span><span data-user-name>Patient</span></a>
+                </div>
+            </header>
+            <div class="page-body">
+                <div class="med-layout">
+                    <div class="stack">
+                        <section class="card">
+                            <h3>Add medication</h3>
+                            <form id="addMedForm" class="form-row">
+                                <div>
+                                    <label for="medicineName">Medicine name</label>
+                                    <input type="text" id="medicineName" placeholder="Medicine name">
+                                </div>
+                                <div>
+                                    <label for="dosage">Dosage</label>
+                                    <input type="text" id="dosage" placeholder="Example: 1 tablet">
+                                </div>
+                                <div>
+                                    <label for="medicineTime">Reminder time</label>
+                                    <input type="time" id="medicineTime">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add reminder</button>
+                            </form>
+                            <p id="medError" class="muted" style="margin-top:8px;"></p>
+                        </section>
+                        <section class="card">
+                            <h3>Today's medications</h3>
+                            <div id="medicineList"></div>
+                        </section>
+                    </div>
+                    <aside class="stack side-panel">
+                        <section class="card">
+                            <h3>Due now</h3>
+                            <div id="dueNowBox"></div>
+                        </section>
+                        <section class="card">
+                            <h3>Upcoming reminders</h3>
+                            <div id="upcomingList"></div>
+                        </section>
+                        <p class="disclaimer">Browser alerts only run while this page or another HealthBridge tab remains open. This is not a native phone alarm.</p>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="fab" id="addMedFab" type="button" title="Focus add form">＋</button>
+    <script src="js/app.js"></script>
+    <script src="js/medication.js"></script>
+</body>
+</html>

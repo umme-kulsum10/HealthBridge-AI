@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Patient Mode - HealthBridge AI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .patient-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1769aa;
+        }
+
+        .mode-label {
+            background: #e8f4ff;
+            color: #1769aa;
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .patient-content {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 45px 20px;
+            flex: 1;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #123b5d;
+        }
+
+        .welcome p {
+            margin: 0;
+            color: #667085;
+            font-size: 16px;
+        }
+
+        .communication-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .language-row {
+            margin-bottom: 24px;
+        }
+
+        .language-row label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #344054;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #ffffff;
+        }
+
+        .message-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #344054;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            padding: 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            outline: none;
+        }
+
+        textarea:focus,
+        .language-select:focus {
+            border-color: #1769aa;
+            box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.12);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 10px;
+            padding: 13px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .send-button {
+            background: #1769aa;
+            color: white;
+            flex: 1;
+        }
+
+        .voice-button {
+            background: #eef2f6;
+            color: #344054;
+        }
+
+        .clear-button {
+            background: #fff1f0;
+            color: #c62828;
+        }
+
+        .action-button:hover {
+            opacity: 0.9;
+        }
+
+        .response-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 14px;
+            background: #f0f9ff;
+            border: 1px solid #b9e3ff;
+        }
+
+        .response-box h3 {
+            margin: 0 0 10px;
+            color: #1769aa;
+        }
+
+        .response-box p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .read-button {
+            margin-top: 15px;
+        }
+
+        .back-button {
+            display: block;
+            width: fit-content;
+            margin: 25px auto 0;
+            text-decoration: none;
+            color: #1769aa;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+
+            .patient-header {
+                padding: 16px 18px;
+            }
+
+            .brand {
+                font-size: 20px;
+            }
+
+            .patient-content {
+                padding: 30px 15px;
+            }
+
+            .welcome h1 {
+                font-size: 27px;
+            }
+
+            .communication-card {
+                padding: 20px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .send-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="patient-page">
+
+    <header class="patient-header">
+
+        <div class="brand">
+            HealthBridge AI
+        </div>
+
+        <div class="mode-label">
+            👤 Patient Mode
+        </div>
+
+    </header>
+
+
+    <main class="patient-content">
+
+        <div class="welcome">
+
+            <h1>
+                How are you feeling?
+            </h1>
+
+            <p>
+                Tell HealthBridge AI about your health concern.
+            </p>
+
+        </div>
+
+
+        <section class="communication-card">
+
+            <div class="language-row">
+
+                <label for="language">
+                    Choose your language
+                </label>
+
+                <select
+                    id="language"
+                    class="language-select">
+
+                    <option value="English">
+                        English
+                    </option>
+
+                    <option value="Tamil">
+                        தமிழ் (Tamil)
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <label
+                class="message-label"
+                for="patientMessage">
+
+                Describe your health concern
+
+            </label>
+
+
+            <textarea
+                id="patientMessage"
+                placeholder="Type your symptoms or health concern here..."
+            ></textarea>
+
+
+            <div class="button-row">
+
+                <button
+                    class="action-button send-button"
+                    onclick="sendMessage()">
+
+                    Send to HealthBridge AI
+
+                </button>
+
+
+                <button
+                    class="action-button voice-button"
+                    onclick="startVoice()">
+
+                    🎤 Speak
+
+                </button>
+
+
+                <button
+                    class="action-button clear-button"
+                    onclick="clearMessage()">
+
+                    Clear
+
+                </button>
+
+            </div>
+
+
+            <div
+                class="response-box"
+                id="responseBox">
+
+                <h3>
+                    🤖 HealthBridge AI
+                </h3>
+
+                <p id="responseText"></p>
+
+
+                <button
+                    class="action-button voice-button read-button"
+                    onclick="speakAIResponse()">
+
+                    🔊 Read AI Response
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <a
+            href="dashboard.html"
+            class="back-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function sendMessage() {
+
+    const message =
+        document
+        .getElementById("patientMessage")
+        .value
+        .trim();
+
+    const language =
+        document.getElementById("language").value;
+
+
+    if (message === "") {
+
+        alert("Please describe your health concern first.");
+
+        return;
+    }
+
+
+    const responseBox =
+        document.getElementById("responseBox");
+
+    const responseText =
+        document.getElementById("responseText");
+
+
+    responseBox.style.display = "block";
+
+
+    let response = "";
+
+
+    if (language === "Tamil") {
+
+        response =
+            "உங்கள் உடல்நலக் கவலை புரிந்துகொள்ளப்பட்டது. " +
+            "HealthBridge AI உங்கள் தகவலை எளிதாக புரிந்துகொள்ள உதவும். " +
+            "உங்களுக்கு கடுமையான அல்லது தொடர்ந்து இருக்கும் அறிகுறிகள் இருந்தால், " +
+            "தகுதியான சுகாதார நிபுணரை அணுகவும்.";
+
+    }
+
+    else {
+
+        const lowerMessage =
+            message.toLowerCase();
+
+
+        if (
+            lowerMessage.includes("fever") ||
+            lowerMessage.includes("temperature") ||
+            lowerMessage.includes("cold")
+        ) {
+
+            response =
+                "I understand that you are experiencing symptoms related to fever or cold. " +
+                "Please rest, stay hydrated, and monitor your symptoms. " +
+                "If the symptoms become severe or continue, please consult a qualified healthcare professional.";
+
+        }
+
+
+        else if (
+            lowerMessage.includes("headache") ||
+            lowerMessage.includes("head pain")
+        ) {
+
+            response =
+                "I understand that you are experiencing a headache. " +
+                "Rest and staying hydrated may help. " +
+                "If the headache is severe, unusual, or continues, please seek advice from a qualified healthcare professional.";
+
+        }
+
+
+        else if (
+            lowerMessage.includes("stomach") ||
+            lowerMessage.includes("pain")
+        ) {
+
+            response =
+                "I understand that you are experiencing pain or stomach discomfort. " +
+                "Please describe when the symptoms started and whether they are getting worse. " +
+                "For severe or persistent pain, please consult a qualified healthcare professional.";
+
+        }
+
+
+        else {
+
+            response =
+                "I understand your health concern. " +
+                "HealthBridge AI can help you organize and communicate your symptoms clearly. " +
+                "Please provide more details such as when the symptoms started, how you feel, and whether they are getting better or worse. " +
+                "For serious or worsening symptoms, please seek help from a qualified healthcare professional.";
+
+        }
+
+    }
+
+
+    responseText.textContent =
+        response;
+}
+
+
+function clearMessage() {
+
+    document
+    .getElementById("patientMessage")
+    .value = "";
+
+
+    document
+    .getElementById("responseBox")
+    .style.display = "none";
+
+
+    document
+    .getElementById("responseText")
+    .textContent = "";
+}
+
+
+function startVoice() {
+
+    const textarea =
+        document.getElementById("patientMessage");
+
+
+    if (!("webkitSpeechRecognition" in window)) {
+
+        alert(
+            "Voice input is not supported in this browser."
+        );
+
+        return;
+    }
+
+
+    const recognition =
+        new webkitSpeechRecognition();
+
+
+    const language =
+        document.getElementById("language").value;
+
+
+    recognition.lang =
+        language === "Tamil"
+        ? "ta-IN"
+        : "en-IN";
+
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+
+    recognition.start();
+
+
+    recognition.onresult =
+        function(event) {
+
+            textarea.value =
+                event.results[0][0].transcript;
+
+        };
+
+
+    recognition.onerror =
+        function() {
+
+            alert(
+                "Voice input could not be started. Please try again."
+            );
+
+        };
+
+}
+
+
+function speakAIResponse() {
+
+    const response =
+        document
+        .getElementById("responseText")
+        .textContent;
+
+
+    if (response.trim() === "") {
+
+        alert("There is no AI response to read.");
+
+        return;
+    }
+
+
+    if (!("speechSynthesis" in window)) {
+
+        alert(
+            "Text-to-speech is not supported in this browser."
+        );
+
+        return;
+    }
+
+
+    const speech =
+        new SpeechSynthesisUtterance(response);
+
+
+    const language =
+        document.getElementById("language").value;
+
+
+    speech.lang =
+        language === "Tamil"
+        ? "ta-IN"
+        : "en-IN";
+
+
+    window.speechSynthesis.cancel();
+
+    window.speechSynthesis.speak(speech);
+
+}
+
+</script>
+
+</body>
+</html>

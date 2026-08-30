@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Voice Assistant - HealthBridge AI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .voice-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .voice-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1769aa;
+        }
+
+        .mode-label {
+            background: #e8f4ff;
+            color: #1769aa;
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .voice-content {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            flex: 1;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #123b5d;
+        }
+
+        .welcome p {
+            margin: 0;
+            color: #667085;
+            font-size: 16px;
+        }
+
+        .voice-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .mic-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .voice-orb {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #e8f4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            transition: 0.3s ease;
+        }
+
+        .voice-orb.listening {
+            animation: pulse 1.5s infinite;
+            background: #d9efff;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            color: #123b5d;
+            margin-bottom: 20px;
+        }
+
+        .language-select {
+            width: 100%;
+            max-width: 400px;
+            padding: 14px;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .voice-button {
+            border: none;
+            border-radius: 12px;
+            padding: 15px 25px;
+            background: #1769aa;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .voice-button:hover {
+            opacity: 0.9;
+        }
+
+        .stop-button {
+            background: #555;
+        }
+
+        .read-button {
+            background: #2f7d32;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1px solid #d0d5dd;
+            border-radius: 12px;
+            min-height: 100px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .result-title {
+            font-weight: bold;
+            color: #123b5d;
+            margin-bottom: 8px;
+        }
+
+        .result-text {
+            color: #344054;
+        }
+
+        .unsupported-note {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #fff4e5;
+            color: #8a4b08;
+            font-size: 14px;
+        }
+
+        .back-button {
+            display: block;
+            width: fit-content;
+            margin: 25px auto 0;
+            text-decoration: none;
+            color: #1769aa;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .voice-header {
+                padding: 16px 18px;
+            }
+
+            .brand {
+                font-size: 20px;
+            }
+
+            .voice-content {
+                padding: 30px 15px;
+            }
+
+            .welcome h1 {
+                font-size: 27px;
+            }
+
+            .voice-card {
+                padding: 25px 20px;
+            }
+
+            .voice-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="voice-page">
+
+        <header class="voice-header">
+
+            <div class="brand">
+                HealthBridge AI
+            </div>
+
+            <div class="mode-label">
+                🎤 Voice Assistant
+            </div>
+
+        </header>
+
+
+        <main class="voice-content">
+
+            <div class="welcome">
+
+                <h1>
+                    Voice Assistant
+                </h1>
+
+                <p>
+                    Speak naturally and let HealthBridge AI understand your message.
+                </p>
+
+            </div>
+
+
+            <section class="voice-card">
+
+                <div
+                    class="voice-orb"
+                    id="voiceOrb">
+
+                    🎤
+
+                </div>
+
+
+                <div
+                    class="status"
+                    id="voiceStatus">
+
+                    Press Start and begin speaking
+
+                </div>
+
+
+                <select
+                    id="voiceLanguage"
+                    class="language-select">
+
+                    <option value="en-IN">
+                        English
+                    </option>
+
+                    <option value="ta-IN">
+                        தமிழ் (Tamil)
+                    </option>
+
+                </select>
+
+
+                <div class="button-row">
+
+                    <button
+                        id="startListenBtn"
+                        class="voice-button"
+                        type="button">
+
+                        🎤 Start Speaking
+
+                    </button>
+
+
+                    <button
+                        id="stopListenBtn"
+                        class="voice-button stop-button"
+                        type="button">
+
+                        🛑 Stop
+
+                    </button>
+
+
+                    <button
+                        id="speakBtn"
+                        class="voice-button read-button"
+                        type="button">
+
+                        🔊 Read Aloud
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="result-box">
+
+                    <div class="result-title">
+                        🗣️ You said
+                    </div>
+
+                    <div
+                        class="result-text"
+                        id="recognizedSpeech">
+
+                        —
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="result-box">
+
+                    <div class="result-title">
+                        🤖 HealthBridge AI
+                    </div>
+
+                    <div
+                        class="result-text"
+                        id="assistantResponse">
+
+                        I am ready to listen and help.
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="unsupportedNote"
+                    class="unsupported-note"
+                    hidden>
+
+                    Speech recognition is not available in this browser.
+                    Chrome or Edge usually provide the best support.
+
+                </div>
+
+            </section>
+
+
+            <a
+                href="dashboard.html"
+                class="back-button">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </main>
+
+    </div>
+
+
+    <!-- HealthBridge common JavaScript -->
+    <script src="js/settings.js"></script>
+
+    <!-- Voice Assistant JavaScript -->
+    <script src="js/voice.js"></script>
+
+</body>
+
+</html>

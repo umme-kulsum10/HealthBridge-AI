@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Settings - HealthBridge AI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1f2937;
+        }
+
+        .settings-page {
+            min-height: 100vh;
+        }
+
+        .settings-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1769aa;
+        }
+
+        .back-button {
+            text-decoration: none;
+            color: #1769aa;
+            font-weight: bold;
+        }
+
+        .settings-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            margin: 0 0 8px;
+            color: #123b5d;
+            font-size: 32px;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: #667085;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        .settings-card h2 {
+            margin-top: 0;
+            color: #123b5d;
+            font-size: 20px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 16px 0;
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .setting-info span {
+            color: #667085;
+            font-size: 14px;
+        }
+
+        select {
+            min-width: 170px;
+            padding: 11px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: white;
+            font-size: 15px;
+        }
+
+        .save-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1769aa;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-button:hover {
+            opacity: 0.9;
+        }
+
+        #saveMessage {
+            text-align: center;
+            color: #16803c;
+            font-weight: bold;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background: #111827;
+            color: #f9fafb;
+        }
+
+        body.dark-mode .settings-header,
+        body.dark-mode .settings-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .page-title h1,
+        body.dark-mode .settings-card h2 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .page-title p,
+        body.dark-mode .setting-info span {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .setting-row {
+            border-color: #374151;
+        }
+
+        body.dark-mode select {
+            background: #111827;
+            color: white;
+            border-color: #4b5563;
+        }
+
+        /* High contrast */
+        body.high-contrast {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        body.high-contrast .settings-header,
+        body.high-contrast .settings-card {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        body.high-contrast .page-title h1,
+        body.high-contrast .settings-card h2,
+        body.high-contrast .setting-info strong {
+            color: #ffffff;
+        }
+
+        body.high-contrast select {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        /* Font sizes */
+        body.font-small {
+            font-size: 14px;
+        }
+
+        body.font-medium {
+            font-size: 16px;
+        }
+
+        body.font-large {
+            font-size: 19px;
+        }
+
+        @media (max-width: 600px) {
+
+            .settings-header {
+                padding: 16px 18px;
+            }
+
+            .brand {
+                font-size: 20px;
+            }
+
+            .settings-container {
+                padding: 30px 15px;
+            }
+
+            .page-title h1 {
+                font-size: 27px;
+            }
+
+            .settings-card {
+                padding: 20px;
+            }
+
+            .setting-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="settings-page">
+
+    <header class="settings-header">
+
+        <div class="brand">
+            🏥 HealthBridge AI
+        </div>
+
+        <a
+            href="dashboard.html"
+            class="back-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </header>
+
+
+    <main class="settings-container">
+
+        <div class="page-title">
+
+            <h1>⚙️ Settings</h1>
+
+            <p>
+                Customize HealthBridge AI for your accessibility needs.
+            </p>
+
+        </div>
+
+
+        <!-- Appearance -->
+
+        <section class="settings-card">
+
+            <h2>🎨 Appearance</h2>
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Theme</strong>
+
+                    <span>
+                        Choose light or dark mode.
+                    </span>
+
+                </div>
+
+                <select id="theme">
+
+                    <option value="light">
+                        Light Mode
+                    </option>
+
+                    <option value="dark">
+                        Dark Mode
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- Accessibility -->
+
+        <section class="settings-card">
+
+            <h2>♿ Accessibility</h2>
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Font Size</strong>
+
+                    <span>
+                        Make text easier to read.
+                    </span>
+
+                </div>
+
+                <select id="fontSize">
+
+                    <option value="small">
+                        Small
+                    </option>
+
+                    <option value="medium" selected>
+                        Medium
+                    </option>
+
+                    <option value="large">
+                        Large
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>High Contrast</strong>
+
+                    <span>
+                        Improve visibility and readability.
+                    </span>
+
+                </div>
+
+                <select id="contrast">
+
+                    <option value="off">
+                        Off
+                    </option>
+
+                    <option value="on">
+                        On
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Voice Assistance</strong>
+
+                    <span>
+                        Enable voice features.
+                    </span>
+
+                </div>
+
+                <select id="voice">
+
+                    <option value="on">
+                        On
+                    </option>
+
+                    <option value="off">
+                        Off
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- Language -->
+
+        <section class="settings-card">
+
+            <h2>🌐 Language</h2>
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Preferred Language</strong>
+
+                    <span>
+                        Select your preferred language.
+                    </span>
+
+                </div>
+
+                <select id="language">
+
+                    <option value="english">
+                        English
+                    </option>
+
+                    <option value="tamil">
+                        தமிழ் (Tamil)
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notifications -->
+
+        <section class="settings-card">
+
+            <h2>🔔 Notifications</h2>
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Notifications</strong>
+
+                    <span>
+                        Enable or disable notifications.
+                    </span>
+
+                </div>
+
+                <select id="notifications">
+
+                    <option value="on">
+                        On
+                    </option>
+
+                    <option value="off">
+                        Off
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- Privacy -->
+
+        <section class="settings-card">
+
+            <h2>🔒 Privacy</h2>
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <strong>Privacy Mode</strong>
+
+                    <span>
+                        Your prototype data remains locally stored.
+                    </span>
+
+                </div>
+
+                <select id="privacy">
+
+                    <option value="standard">
+                        Standard
+                    </option>
+
+                    <option value="strict">
+                        Strict
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <button
+            class="save-button"
+            onclick="saveSettings()">
+
+            💾 Save Settings
+
+        </button>
+
+
+        <div id="saveMessage"></div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function applySettings() {
+
+    const theme =
+        localStorage.getItem("hb_theme") || "light";
+
+    const fontSize =
+        localStorage.getItem("hb_fontSize") || "medium";
+
+    const contrast =
+        localStorage.getItem("hb_contrast") || "off";
+
+
+    document.body.classList.remove(
+        "dark-mode",
+        "font-small",
+        "font-medium",
+        "font-large",
+        "high-contrast"
+    );
+
+
+    if (theme === "dark") {
+        document.body.classList.add("dark-mode");
+    }
+
+
+    document.body.classList.add(
+        "font-" + fontSize
+    );
+
+
+    if (contrast === "on") {
+        document.body.classList.add("high-contrast");
+    }
+
+
+    document.getElementById("theme").value =
+        theme;
+
+    document.getElementById("fontSize").value =
+        fontSize;
+
+    document.getElementById("contrast").value =
+        contrast;
+}
+
+
+function saveSettings() {
+
+    const theme =
+        document.getElementById("theme").value;
+
+    const fontSize =
+        document.getElementById("fontSize").value;
+
+    const contrast =
+        document.getElementById("contrast").value;
+
+    const voice =
+        document.getElementById("voice").value;
+
+    const language =
+        document.getElementById("language").value;
+
+    const notifications =
+        document.getElementById("notifications").value;
+
+    const privacy =
+        document.getElementById("privacy").value;
+
+
+    localStorage.setItem(
+        "hb_theme",
+        theme
+    );
+
+    localStorage.setItem(
+        "hb_fontSize",
+        fontSize
+    );
+
+    localStorage.setItem(
+        "hb_contrast",
+        contrast
+    );
+
+    localStorage.setItem(
+        "hb_voice",
+        voice
+    );
+
+    localStorage.setItem(
+        "hb_language",
+        language
+    );
+
+    localStorage.setItem(
+        "hb_notifications",
+        notifications
+    );
+
+    localStorage.setItem(
+        "hb_privacy",
+        privacy
+    );
+
+
+    applySettings();
+
+
+    document.getElementById("saveMessage").textContent =
+        "✓ Settings saved successfully!";
+
+
+    setTimeout(function() {
+
+        document.getElementById("saveMessage").textContent = "";
+
+    }, 2500);
+}
+
+
+document
+.getElementById("theme")
+.addEventListener("change", applySettings);
+
+
+document
+.getElementById("fontSize")
+.addEventListener("change", applySettings);
+
+
+document
+.getElementById("contrast")
+.addEventListener("change", applySettings);
+
+
+applySettings();
+
+</script>
+
+</body>
+</html>

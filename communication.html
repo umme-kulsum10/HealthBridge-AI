@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication - HealthBridge AI</title>
+
+```
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #eef3f8;
+        color: #152536;
+        min-height: 100vh;
+    }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: #0c2438;
+        color: white;
+        padding: 22px 14px;
+        flex-shrink: 0;
+    }
+
+    .brand {
+        font-size: 18px;
+        font-weight: bold;
+        padding: 10px;
+        margin-bottom: 25px;
+    }
+
+    .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nav a {
+        display: block;
+        color: #c9d7e4;
+        text-decoration: none;
+        padding: 13px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+        background: #16344c;
+        color: white;
+    }
+
+    .nav a.active {
+        border-left: 4px solid #0d9488;
+    }
+
+    .sidebar-bottom {
+        margin-top: 30px;
+        padding: 15px 10px;
+        border-top: 1px solid rgba(255,255,255,0.15);
+        color: #8aa0b5;
+        font-size: 12px;
+    }
+
+    .main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .header {
+        height: 68px;
+        background: white;
+        border-bottom: 1px solid #dce5ee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 25px;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .header p {
+        color: #5d6e80;
+        font-size: 13px;
+        margin-top: 3px;
+    }
+
+    .user {
+        background: #f7fafc;
+        border: 1px solid #dce5ee;
+        padding: 9px 14px;
+        border-radius: 20px;
+    }
+
+    .content {
+        max-width: 900px;
+        margin: auto;
+        padding: 30px 20px;
+    }
+
+    .title {
+        text-align: center;
+        margin-bottom: 22px;
+    }
+
+    .title h2 {
+        font-size: 30px;
+        margin-bottom: 7px;
+    }
+
+    .title p {
+        color: #5d6e80;
+    }
+
+    .chat-card {
+        background: white;
+        border: 1px solid #dce5ee;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgba(15,36,56,0.07);
+    }
+
+    .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #e0f2fe;
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .ai-icon {
+        font-size: 30px;
+    }
+
+    .ai-header strong {
+        display: block;
+        color: #075985;
+        margin-bottom: 3px;
+    }
+
+    .ai-header span {
+        font-size: 12px;
+        color: #42677f;
+    }
+
+    .chat-area {
+        min-height: 220px;
+        max-height: 400px;
+        overflow-y: auto;
+        background: #f7fafc;
+        border: 1px solid #dce5ee;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .message {
+        max-width: 78%;
+        padding: 12px 15px;
+        border-radius: 13px;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+
+    .ai-message {
+        background: #e0f2fe;
+        color: #164e63;
+        margin-right: auto;
+    }
+
+    .patient-message {
+        background: #d1fae5;
+        color: #065f46;
+        margin-left: auto;
+    }
+
+    .input-area {
+        display: flex;
+        gap: 10px;
+    }
+
+    textarea {
+        flex: 1;
+        min-height: 55px;
+        resize: vertical;
+        padding: 13px;
+        border: 1px solid #dce5ee;
+        border-radius: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        outline: none;
+    }
+
+    textarea:focus {
+        border-color: #0d9488;
+    }
+
+    .send-btn {
+        border: none;
+        background: #0d9488;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .send-btn:hover {
+        background: #0f766e;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .quick-btn {
+        border: 1px solid #dce5ee;
+        background: #f7fafc;
+        color: #33485b;
+        padding: 9px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .quick-btn:hover {
+        border-color: #0d9488;
+    }
+
+    .notice {
+        margin-top: 18px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        padding: 13px;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 700px) {
+        .layout {
+            display: block;
+        }
+
+        .sidebar {
+            width: 100%;
+        }
+
+        .nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .content {
+            padding: 20px 15px;
+        }
+
+        .input-area {
+            flex-direction: column;
+        }
+
+        .send-btn {
+            width: 100%;
+        }
+
+        .message {
+            max-width: 90%;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="layout">
+
+```
+<aside class="sidebar">
+
+    <div class="brand">
+        ❤ HealthBridge AI
+    </div>
+
+    <nav class="nav">
+
+        <a href="dashboard.html">
+            🏠 Dashboard
+        </a>
+
+        <a href="communication.html" class="active">
+            💬 Communicate
+        </a>
+
+        <a href="documents.html">
+            📄 Documents
+        </a>
+
+        <a href="terms.html">
+            📚 Medical Terms
+        </a>
+
+        <a href="patient.html">
+            👤 Patient Mode
+        </a>
+
+        <a href="settings.html">
+            ⚙️ Settings
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+        Accessible Healthcare Assistant
+    </div>
+
+</aside>
+
+<main class="main">
+
+    <header class="header">
+
+        <div>
+            <h1>Communication</h1>
+            <p>Communicate with HealthBridge AI</p>
+        </div>
+
+        <div class="user">
+            👤 User
+        </div>
+
+    </header>
+
+    <section class="content">
+
+        <div class="title">
+
+            <h2>💬 Talk to HealthBridge AI</h2>
+
+            <p>
+                Describe your healthcare concern and receive a simple response.
+            </p>
+
+        </div>
+
+        <div class="chat-card">
+
+            <div class="ai-header">
+
+                <div class="ai-icon">
+                    🤖
+                </div>
+
+                <div>
+                    <strong>HealthBridge AI</strong>
+                    <span>Accessible healthcare communication assistant</span>
+                </div>
+
+            </div>
+
+            <div class="chat-area" id="chatArea">
+
+                <div class="message ai-message">
+                    Hello! 👋 I'm HealthBridge AI. Tell me about your healthcare concern, and I'll help you understand it in simple language.
+                </div>
+
+            </div>
+
+            <div class="input-area">
+
+                <textarea
+                    id="messageInput"
+                    placeholder="Type your health concern here..."
+                ></textarea>
+
+                <button
+                    class="send-btn"
+                    onclick="sendMessage()">
+                    Send
+                </button>
+
+            </div>
+
+            <div class="quick-actions">
+
+                <button
+                    class="quick-btn"
+                    onclick="quickMessage('I have a headache')">
+                    🤕 I have a headache
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickMessage('I have a fever')">
+                    🌡️ I have a fever
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickMessage('I do not understand my medical report')">
+                    📄 Explain my report
+                </button>
+
+            </div>
+
+            <div class="notice">
+
+                <strong>Important:</strong>
+                HealthBridge AI is a prototype communication assistant.
+                It provides general educational information and does not replace professional medical advice.
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+```
+
+</div>
+
+<script>
+
+function sendMessage() {
+
+    const input = document.getElementById("messageInput");
+    const chatArea = document.getElementById("chatArea");
+
+    const message = input.value.trim();
+
+    if (message === "") {
+        alert("Please type your healthcare concern first.");
+        return;
+    }
+
+    const patientMessage = document.createElement("div");
+
+    patientMessage.className = "message patient-message";
+    patientMessage.textContent = message;
+
+    chatArea.appendChild(patientMessage);
+
+    input.value = "";
+
+    setTimeout(function() {
+
+        const aiMessage = document.createElement("div");
+
+        aiMessage.className = "message ai-message";
+
+        aiMessage.textContent =
+            "Thank you for sharing that. I understand your concern. I can help explain healthcare information in simple language. If your symptoms are severe, worsening, or worrying you, please speak with a qualified healthcare professional.";
+
+        chatArea.appendChild(aiMessage);
+
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+    }, 500);
+
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+
+function quickMessage(message) {
+
+    document.getElementById("messageInput").value = message;
+
+    document.getElementById("messageInput").focus();
+
+}
+
+
+document.getElementById("messageInput").addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter" && !event.shiftKey) {
+
+            event.preventDefault();
+
+            sendMessage();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>

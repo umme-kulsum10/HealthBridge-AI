@@ -1,0 +1,12 @@
+{
+  "name": "healthbridge-ai",
+  "version": "1.0.0",
+  "description": "HealthBridge AI hackathon prototype",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
