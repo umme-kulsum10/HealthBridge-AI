@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthBridge AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: { extend: {
+    colors: {
+      primary:"#004e9f","primary-container":"#0066cc","on-primary":"#ffffff",
+      secondary:"#006a61","secondary-container":"#86f2e4",
+      tertiary:"#6513d6","tertiary-container":"#7e3cef",
+      background:"#f8f9ff","surface":"#f8f9ff","surface-container-low":"#eff4ff",
+      "surface-container":"#e5eeff","surface-container-high":"#dce9ff",
+      "surface-container-highest":"#d3e4fe","surface-dim":"#cbdbf5",
+      "surface-container-lowest":"#ffffff","on-surface":"#0b1c30",
+      "on-surface-variant":"#414753","outline":"#727784","outline-variant":"#c1c6d5",
+      error:"#ba1a1a"
+    },
+    borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},
+    spacing:{"unit":"8px","stack-sm":"8px","stack-md":"16px","stack-lg":"32px","gutter":"24px","margin-mobile":"16px","margin-desktop":"40px","container-max":"1280px"},
+    fontFamily:{"public":["Public Sans"],sans:["Public Sans"]}
+  }}
+};
+</script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Public Sans",sans-serif;background:#f8f9ff;color:#0b1c30}
+body{overflow-x:hidden}
+.page{display:none;min-height:100vh}
+.page.active{display:flex}
+.app-shell{display:flex;width:100%;min-height:100vh}
+.sidebar{width:288px;flex:none;position:fixed;left:0;top:0;height:100vh;background:#eff4ff;border-right:1px solid #c1c6d5;padding:24px 16px;z-index:100}
+.main-area{margin-left:288px;min-width:0;width:calc(100% - 288px);min-height:100vh}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:10px;border:0;background:transparent;color:#414753;font-weight:600;text-align:left;cursor:pointer}
+.nav-item:hover{background:#e5eeff}
+.nav-item.active{background:#dce9ff;color:#004e9f}
+.card-shadow{box-shadow:0 4px 20px rgba(0,102,204,.08)}
+.screen-padding{padding:40px;max-width:1280px;margin:auto}
+@media(max-width:900px){
+ .sidebar{display:none}.main-area{margin-left:0;width:100%}.screen-padding{padding:20px 16px 92px}
+ .mobile-nav{display:flex!important}
+}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:72px;background:white;border-top:1px solid #c1c6d5;z-index:200;justify-content:space-around;align-items:center}
+.mobile-nav button{border:0;background:transparent;font-size:11px;color:#414753;display:flex;flex-direction:column;align-items:center;gap:3px}
+.mobile-nav .material-symbols-outlined{font-size:22px}
+.simple-card{background:white;border:1px solid #dce4f2;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,102,204,.06)}
+.hero{background:linear-gradient(135deg,#eff7ff,#f5f0ff);border-radius:20px;padding:32px}
+.btn-primary{background:#004e9f;color:#fff;border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer}
+.btn-secondary{background:#e5eeff;color:#004e9f;border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer}
+textarea,input,select{font-family:inherit}
+.chat-box{max-height:430px;overflow:auto}
+.msg{max-width:80%;padding:12px 16px;border-radius:16px;margin:10px 0;line-height:1.5}
+.msg.user{margin-left:auto;background:#004e9f;color:white;border-bottom-right-radius:5px}
+.msg.ai{background:#eff4ff;color:#0b1c30;border-bottom-left-radius:5px}
+.toast{position:fixed;right:20px;bottom:90px;padding:12px 16px;background:#0b1c30;color:#fff;border-radius:10px;display:none;z-index:500}
+</style>
+</head>
+<body>
+
+<!-- Shared navigation -->
+<aside class="sidebar">
+  <div class="px-3 pt-2 pb-7">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined">health_and_safety</span>
+      </div>
+      <div>
+        <div class="text-xl font-bold text-primary">HealthBridge AI</div>
+        <div class="text-xs text-on-surface-variant">Accessible healthcare communication</div>
+      </div>
+    </div>
+  </div>
+  <nav class="space-y-2">
+    <button class="nav-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span>Dashboard</button>
+    <button class="nav-item" data-page="communication"><span class="material-symbols-outlined">chat</span>Communication</button>
+    <button class="nav-item" data-page="translation"><span class="material-symbols-outlined">translate</span>Translation</button>
+    <button class="nav-item" data-page="voice"><span class="material-symbols-outlined">mic</span>Voice Assistant</button>
+    <button class="nav-item" data-page="terms"><span class="material-symbols-outlined">medical_information</span>Medical Terms</button>
+    <button class="nav-item" data-page="documents"><span class="material-symbols-outlined">description</span>Documents</button>
+    <button class="nav-item" data-page="profile"><span class="material-symbols-outlined">person</span>Patient Profile</button>
+    <button class="nav-item" data-page="settings"><span class="material-symbols-outlined">settings</span>Settings</button>
+  </nav>
+  <div class="absolute bottom-5 left-4 right-4">
+    <div class="simple-card !p-4">
+      <div class="flex items-center gap-2 text-secondary font-semibold text-sm">
+        <span class="material-symbols-outlined">accessibility_new</span>Accessibility first
+      </div>
+      <p class="text-xs text-on-surface-variant mt-2">Simple tools for clearer healthcare communication.</p>
+    </div>
+  </div>
+</aside>
+
+<main class="main-area">
+
+<!-- Dashboard -->
+<section id="page-dashboard" class="page active">
+  <div class="screen-padding">
+    <div class="flex justify-between items-start gap-5 mb-8">
+      <div>
+        <p class="text-sm font-semibold text-primary mb-2">WELCOME TO HEALTHBRIDGE AI</p>
+        <h1 class="text-4xl font-bold mb-3">Accessible healthcare communication</h1>
+        <p class="text-lg text-on-surface-variant max-w-2xl">Understand medical information, communicate clearly, and use accessibility tools in one place.</p>
+      </div>
+      <button class="btn-secondary" onclick="showPage('settings')"><span class="material-symbols-outlined align-middle text-base">accessibility</span> Accessibility</button>
+    </div>
+    <div class="hero mb-8">
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-2 text-tertiary font-semibold mb-3"><span class="material-symbols-outlined">auto_awesome</span>AI-powered assistance</div>
+        <h2 class="text-2xl font-bold mb-2">How can HealthBridge help you today?</h2>
+        <p class="text-on-surface-variant mb-5">Ask a health-related question, translate a message, explain a medical term, or understand a document in simpler language.</p>
+        <button class="btn-primary" onclick="showPage('communication')">Start a conversation</button>
+      </div>
+    </div>
+    <h2 class="text-2xl font-semibold mb-4">Features</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('communication')"><span class="material-symbols-outlined text-primary text-3xl">chat</span><h3 class="font-semibold text-lg mt-4">Communicate</h3><p class="text-sm text-on-surface-variant mt-1">Chat with the healthcare assistant.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('translation')"><span class="material-symbols-outlined text-secondary text-3xl">translate</span><h3 class="font-semibold text-lg mt-4">Translate</h3><p class="text-sm text-on-surface-variant mt-1">Translate healthcare messages.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('voice')"><span class="material-symbols-outlined text-tertiary text-3xl">mic</span><h3 class="font-semibold text-lg mt-4">Speak</h3><p class="text-sm text-on-surface-variant mt-1">Use voice input and playback.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('documents')"><span class="material-symbols-outlined text-primary text-3xl">description</span><h3 class="font-semibold text-lg mt-4">Documents</h3><p class="text-sm text-on-surface-variant mt-1">Understand uploaded medical information.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('terms')"><span class="material-symbols-outlined text-secondary text-3xl">medical_information</span><h3 class="font-semibold text-lg mt-4">Medical Terms</h3><p class="text-sm text-on-surface-variant mt-1">Get simple explanations of medical words.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('profile')"><span class="material-symbols-outlined text-primary text-3xl">person</span><h3 class="font-semibold text-lg mt-4">Patient Profile</h3><p class="text-sm text-on-surface-variant mt-1">Manage communication preferences.</p></button>
+      <button class="simple-card text-left hover:-translate-y-1 transition" onclick="showPage('settings')"><span class="material-symbols-outlined text-tertiary text-3xl">tune</span><h3 class="font-semibold text-lg mt-4">Accessibility</h3><p class="text-sm text-on-surface-variant mt-1">Adjust font, contrast, theme and voice.</p></button>
+      <div class="simple-card bg-primary text-white">
+        <span class="material-symbols-outlined text-3xl">shield</span><h3 class="font-semibold text-lg mt-4">Privacy</h3><p class="text-sm opacity-90 mt-1">Keep your healthcare information handled responsibly.</p>
+      </div>
+      <div class="simple-card lg:col-span-2 mt-5">
+        <div class="flex items-center justify-between gap-3"><div><span class="material-symbols-outlined text-tertiary text-3xl">alarm</span><h3 class="font-semibold text-lg mt-3">Reminder</h3><p class="text-sm text-on-surface-variant mt-1">Set a medication or appointment reminder.</p></div><span id="alarmStatus" class="text-xs font-semibold text-secondary">Ready</span></div>
+        <div class="grid sm:grid-cols-3 gap-3 mt-4"><input id="alarmName" class="rounded-xl border-outline-variant" placeholder="Reminder name" type="text"><input id="alarmTime" class="rounded-xl border-outline-variant" type="time"><button class="btn-primary" onclick="addReminder()">Set Reminder</button></div>
+        <div id="reminderList" class="mt-4 space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Communication -->
+<section id="page-communication" class="page">
+  <div class="screen-padding">
+    <div class="mb-6"><p class="text-sm font-semibold text-primary mb-2">COMMUNICATION</p><h1 class="text-4xl font-bold">Talk to HealthBridge AI</h1><p class="text-on-surface-variant mt-2">Describe what you need help understanding.</p></div>
+    <div class="grid lg:grid-cols-[1fr_320px] gap-6">
+      <div class="simple-card">
+        <div id="chatBox" class="chat-box min-h-[360px]">
+          <div class="msg ai"><strong>HealthBridge AI</strong><br>Hi! Tell me what you would like help understanding. I can explain medical information in simpler language.</div>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <textarea id="chatInput" rows="2" class="flex-1 rounded-xl border-outline-variant" placeholder="Type your question..."></textarea>
+          <button class="btn-primary self-end" onclick="sendChat()">Send</button>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn-secondary text-sm" onclick="startSpeechInput()">🎙 Speak</button>
+          <button class="btn-secondary text-sm" onclick="document.getElementById('chatInput').value=''">Clear</button>
+        </div>
+      </div>
+      <div class="simple-card h-fit">
+        <h3 class="font-semibold text-lg">Accessibility</h3>
+        <p class="text-sm text-on-surface-variant mt-2">You can change font size, contrast, theme and voice settings.</p>
+        <button class="btn-secondary mt-4 w-full" onclick="showPage('settings')">Open Settings</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Translation -->
+<section id="page-translation" class="page">
+  <div class="screen-padding">
+    <div class="mb-6"><p class="text-sm font-semibold text-secondary mb-2">TRANSLATION</p><h1 class="text-4xl font-bold">Translate healthcare messages</h1><p class="text-on-surface-variant mt-2">Convert a message between supported languages.</p></div>
+    <div class="simple-card max-w-4xl">
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <label class="text-sm font-semibold">From
+          <select id="sourceLanguage" class="mt-2 w-full rounded-xl border-outline-variant"><option>English</option><option>Tamil</option><option>Hindi</option></select>
+        </label>
+        <label class="text-sm font-semibold">To
+          <select id="targetLanguage" class="mt-2 w-full rounded-xl border-outline-variant"><option>Tamil</option><option>English</option><option>Hindi</option></select>
+        </label>
+      </div>
+      <textarea id="translationInput" rows="6" class="w-full rounded-xl border-outline-variant" placeholder="Enter the healthcare message here..."></textarea>
+      <button class="btn-primary mt-4" onclick="translateText()">Translate</button>
+      <div id="translationOutput" class="mt-6 rounded-xl bg-surface-container-low p-5 min-h-24 text-on-surface-variant">Your translated text will appear here.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Stitch Voice Assistant -->
+<section id="page-voice" class="page">
+<div class="w-full"><main class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop flex flex-col max-w-container-max mx-auto w-full">
+<!-- Header Section -->
+<div class="mb-stack-lg text-center md:text-left">
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-2">Voice Assistant</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Speak naturally and receive a clear response from HealthBridge AI.</p>
+</div>
+<!-- Voice Interface Bento Grid -->
+<div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-gutter min-h-0">
+<!-- Main Voice Control (Left/Top) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-xl border border-outline-variant ambient-shadow p-gutter flex flex-col items-center justify-center relative overflow-hidden h-64 lg:h-auto min-h-[300px]">
+<!-- Soft gradient background indicative of AI -->
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-low to-inverse-primary opacity-20 z-0"></div>
+<div class="relative z-10 flex flex-col items-center">
+<button id="voiceMicButton"
+  onclick="toggleVoiceAssistant()"
+  class="w-32 h-32 rounded-full bg-primary text-on-primary flex items-center justify-center cursor-pointer shadow-lg mic-pulse mb-6 active:scale-95 transition-transform border-0">
+  <span class="material-symbols-outlined text-5xl"
+    style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+
+<span id="voiceStatus"
+  class="font-headline-md text-headline-md text-primary font-bold tracking-wide">
+  Tap to speak
+</span>
+
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+  Tap the microphone to start
+</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Tap to pause</p>
+</div>
+</div>
+<!-- Conversation Log (Right/Bottom) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant ambient-shadow flex flex-col overflow-hidden h-[500px] lg:h-auto">
+<!-- Chat History -->
+<div class="flex-1 overflow-y-auto p-gutter space-y-stack-md">
+<!-- User Message -->
+<div class="flex flex-col items-end">
+<div class="flex items-center space-x-2 mb-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">You</span>
+</div>
+<div class="bg-primary-container text-on-primary-container px-4 py-3 rounded-2xl rounded-tr-sm max-w-[85%] font-body-md text-body-md shadow-sm">
+                                I've been feeling a bit dizzy after taking my new blood pressure medication. Is that normal?
+                            </div>
+</div>
+<!-- AI Response -->
+<div class="flex flex-col items-start">
+<div class="flex items-center space-x-2 mb-1">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">HealthBridge AI</span>
+</div>
+<div class="bg-surface-container text-on-surface px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] font-body-md text-body-md shadow-sm relative">
+<p class="mb-3">Mild dizziness can be a common side effect when starting new blood pressure medications as your body adjusts to the changes. However, it's important to monitor it.</p>
+<p>If the dizziness is severe, persists for more than a few days, or if you feel like you might faint, you should contact your doctor immediately.</p>
+<!-- Audio Control -->
+<button class="mt-4 flex items-center space-x-2 bg-surface-container-high hover:bg-surface-variant px-3 py-1.5 rounded-lg border border-outline-variant transition-colors text-primary font-label-md text-label-md group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">volume_up</span>
+<span>Listen to response</span>
+</button>
+</div>
+</div>
+<!-- AI Listening Indicator (Typing/Thinking) -->
+<div class="flex flex-col items-start mt-4 opacity-50">
+<div class="flex items-center space-x-2 mb-1">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">HealthBridge AI is processing...</span>
+</div>
+</div>
+</div>
+<!-- Fallback Text Input -->
+<div class="p-4 border-t border-outline-variant bg-surface-container-lowest">
+<div class="relative flex items-center">
+<input id="voiceInput" class="w-full bg-surface-container-low border-none rounded-full py-3 pl-4 pr-12 font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:outline-none placeholder-on-surface-variant" placeholder="Type a message instead..." type="text" onkeydown="if(event.key==='Enter') sendVoiceText()"/>
+<button onclick="sendVoiceText()" class="absolute right-2 p-2 rounded-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main></div>
+</section>
+
+<!-- Stitch Medical Terms -->
+<section id="page-terms" class="page">
+<div class="w-full"><main class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop bg-surface z-0 relative">
+<div class="max-w-3xl mx-auto space-y-stack-lg">
+<!-- Header Section -->
+<div class="text-center space-y-stack-sm mb-12">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-container text-primary mb-4 shadow-sm">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">medical_information</span>
+</div>
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface">Understand Medical Terms</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mx-auto">
+                        Enter a medical word and HealthBridge AI will explain it in simple language.
+                    </p>
+</div>
+<!-- Search Input -->
+<div class="bg-surface-container-lowest p-2 rounded-2xl shadow-[0_4px_20px_rgba(0,102,204,0.06)] border border-outline-variant flex items-center focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="material-symbols-outlined text-outline ml-4 mr-2 text-2xl">search</span>
+<input aria-label="Medical Term Search" class="w-full bg-transparent border-none focus:ring-0 font-body-lg text-body-lg text-on-surface py-4 px-2 placeholder-outline-variant outline-none" placeholder="e.g., Hypertension, Arrhythmia..." type="text" value="Hypertension"/>
+<button class="bg-primary text-on-primary rounded-xl px-6 py-4 font-label-md text-label-md hover:bg-primary-fixed-variant transition-colors shadow-sm ml-2 whitespace-nowrap">
+                        Explain
+                    </button>
+</div>
+<!-- Example Result: Hypertension -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-[0_8px_30px_rgba(0,102,204,0.08)] overflow-hidden relative">
+<!-- Subtle AI Background Element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-fixed opacity-20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+<div class="p-8 relative z-10 space-y-stack-md">
+<!-- Term Header -->
+<div class="flex items-start justify-between border-b border-outline-variant pb-6">
+<div>
+<div class="flex items-center space-x-2 mb-1">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">Medical Term</span>
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Hypertension</h3>
+<p class="font-body-md text-body-md text-outline mt-1 italic">hy·per·ten·sion</p>
+</div>
+<button aria-label="Listen to pronunciation" class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+</div>
+<!-- Simple Meaning -->
+<div class="py-4">
+<h4 class="font-label-md text-label-md text-on-surface-variant flex items-center mb-3">
+<span class="material-symbols-outlined mr-2 text-secondary">lightbulb</span>
+                                The Simple Meaning
+                            </h4>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+                                Hypertension is simply the medical word for <strong class="text-primary font-semibold">high blood pressure</strong>. 
+                                It means the force of your blood pushing against your blood vessel walls is consistently too high, making your heart work harder than it should.
+                            </p>
+</div>
+<!-- What it means for you -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-surface-variant mt-4">
+<h4 class="font-label-md text-label-md text-on-surface mb-4">What you should know:</h4>
+<ul class="space-y-4">
+<li class="flex items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">It often has no symptoms, which is why it's sometimes called a "silent condition."</span>
+</li>
+<li class="flex items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">A normal blood pressure reading is usually around 120/80. If yours is often higher, your doctor might diagnose hypertension.</span>
+</li>
+<li class="flex items-start">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">It can be managed well with lifestyle changes (like less salt and more exercise) and medication.</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Actions -->
+<div class="bg-surface-container px-8 py-4 flex items-center justify-between border-t border-outline-variant">
+<div class="flex space-x-2">
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full font-label-sm text-label-sm border border-outline-variant">Cardiovascular</span>
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full font-label-sm text-label-sm border border-outline-variant">Common</span>
+</div>
+<button class="text-primary font-label-md text-label-md flex items-center hover:text-primary-fixed-variant transition-colors">
+<span class="material-symbols-outlined mr-1 text-[18px]">bookmark_add</span>
+                            Save Term
+                        </button>
+</div>
+</div>
+</div>
+</main></div>
+</section>
+
+<!-- Stitch Documents -->
+<section id="page-documents" class="page">
+<div class="w-full"><main class="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto">
+<!-- TopNavBar (Mobile) -->
+<header class="md:hidden flex justify-between items-center w-full px-margin-mobile h-20 bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(0,78,159,0.08)] sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">HealthBridge AI</span>
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high transition-colors p-2 rounded-full">settings_accessibility</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high transition-colors p-2 rounded-full">notifications</span>
+<img alt="Patient Profile Avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A small circular avatar placeholder image showing a friendly illustrative profile of a patient in soft healthcare colors like warm teals and soft blues. The style is clean, modern, and reassuring, suitable for a trusted medical platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2pitVhxj5BkRF4AB1X96m_rM7OzPitURe9FzcK6XX1D2gIJCaM-vPoGX-vFyttYFAtpCp2eU5rkgZsZDDdg_SCt92VHs0DAG6D-Onv1-0BC5RYlGkvre-RZ0fk_syT_0GgPpAP2rIxK8Uec2sHWJ6tEQ4DPUSmypQglvAPLp3cX0uaK9v7dPNnc62fQc-ls8viyCwmQQ_6ymHGkM05uLrPANjv7iMJUm4bnH4Zf_HGwjR3Zb-v6Lj"/>
+</div>
+</header>
+<div class="max-w-container-max mx-auto w-full p-margin-mobile md:p-margin-desktop space-y-stack-lg">
+<!-- Header Section -->
+<div class="max-w-3xl">
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-4">Understand Your Documents</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Upload a medical document and HealthBridge AI will summarize the information in simple language.</p>
+</div>
+<!-- Upload Area -->
+<div class="bg-surface-container-lowest border-2 border-dashed border-primary/30 rounded-xl p-8 md:p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl text-primary">upload_file</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Drag and drop your document here</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Supports PDF, JPG, PNG (Max 10MB)</p>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">folder_open</span>
+                    Choose Document
+                </button>
+</div>
+<!-- Status Indicator (Mocking processing state briefly) -->
+<div class="hidden flex items-center gap-4 bg-surface-container p-4 rounded-lg shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary animate-spin">progress_activity</span>
+<span class="font-body-md text-body-md text-on-surface">Analyzing "Blood_Test_Results_2023.pdf"...</span>
+</div>
+<!-- AI Output Section (Bento Grid Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Simple Summary -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-gutter border border-outline-variant shadow-[0px_8px_24px_rgba(0,78,159,0.06)] relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-tertiary">auto_awesome</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Simple Summary</h3>
+</div>
+<div class="prose prose-blue max-w-none text-on-surface font-body-md text-body-md space-y-4">
+<p>Your recent complete blood count (CBC) results are generally normal. This means your body is producing a healthy amount of red blood cells, white blood cells, and platelets.</p>
+<div class="bg-surface-container-low p-4 rounded-lg border-l-4 border-secondary mt-4">
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Key Takeaway</h4>
+<p class="text-on-surface-variant text-sm">Your hemoglobin levels are slightly on the lower end of the normal range, which is common. Your doctor might suggest ensuring you have enough iron in your diet.</p>
+</div>
+</div>
+</div>
+<!-- Right Column Stack -->
+<div class="space-y-gutter">
+<!-- Medical Terms Explained -->
+<div class="bg-surface-container-lowest rounded-xl p-gutter border border-outline-variant shadow-[0px_4px_16px_rgba(0,78,159,0.04)]">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">local_library</span>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Terms Explained</h3>
+</div>
+<ul class="space-y-3">
+<li class="border-b border-outline-variant/30 pb-3 last:border-0 last:pb-0">
+<span class="font-label-md text-label-md text-on-surface block mb-1">Hemoglobin</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant block">The protein in red blood cells that carries oxygen throughout your body.</span>
+</li>
+<li class="border-b border-outline-variant/30 pb-3 last:border-0 last:pb-0">
+<span class="font-label-md text-label-md text-on-surface block mb-1">Leukocytes</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant block">Another name for white blood cells, which help your body fight infection.</span>
+</li>
+</ul>
+</div>
+<!-- Questions to Ask -->
+<div class="bg-surface-container-lowest rounded-xl p-gutter border border-outline-variant shadow-[0px_4px_16px_rgba(0,78,159,0.04)]">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-secondary">help_center</span>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Questions to Ask</h3>
+</div>
+<div class="space-y-3">
+<p class="font-body-md text-body-md text-sm text-on-surface-variant italic mb-2">Consider asking your doctor:</p>
+<div class="bg-surface p-3 rounded-lg border border-outline-variant/50 flex gap-2">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">chat_bubble</span>
+<span class="font-body-md text-body-md text-sm text-on-surface">"Do I need to make any changes to my diet to improve my iron levels?"</span>
+</div>
+<div class="bg-surface p-3 rounded-lg border border-outline-variant/50 flex gap-2">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">chat_bubble</span>
+<span class="font-body-md text-body-md text-sm text-on-surface">"When should I schedule my next routine blood test?"</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main></div>
+</section>
+
+<!-- Stitch Patient Profile -->
+<section id="page-profile" class="page">
+<div class="w-full"><main class="flex-1 mt-20 md:mt-24 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full pb-24 md:pb-8">
+<!-- Header Section -->
+<div class="mb-stack-lg">
+<h1 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-stack-sm">Patient Profile</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your information and communication preferences.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column: Profile Card -->
+<div class="lg:col-span-1 space-y-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-gutter shadow-[0px_4px_20px_rgba(0,102,204,0.08)] flex flex-col items-center text-center">
+<div class="relative mb-stack-md">
+<img alt="Large Patient Avatar" class="w-32 h-32 rounded-full border-4 border-surface shadow-sm object-cover" data-alt="A high-quality, professional headshot of a patient used as a profile avatar. The individual is looking directly at the camera with a calm, friendly expression. The lighting is studio quality, soft and even, highlighting a warm skin tone. The background is a very subtle, blurred abstract gradient of soft blues and whites to match a modern healthcare UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg0kHRLWSOEFsGi7bK-X29RMaRLCrdVDJAiNJ3V0MT1IoVsI0Eidc7I3_bGNqFuqsv-MX2xWcm0lKkSmyJCdFvJ8QK1MYENQteuA7nYzdvqfbI-seD8vBeBRQTIUDDKOU5BgPFWrgV_uidIx5C4ayYUmoIAt7olLkOQ3o4kty6xjIPTzKQdZVqVyfasIzV1Adf6J6qGsT4wDh6bkWfQh2rl2cRPSdbFmQtH9Mb12OyATbYixunmGDJ"/>
+<button class="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-md hover:bg-primary-container hover:text-on-primary-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+<h2 id="profileCardName" class="font-headline-lg text-headline-lg text-on-surface">Your Name</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-sm">Patient ID: <span id="profileCardId">Not set</span></p>
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full mt-2">
+<span class="material-symbols-outlined text-primary text-[20px]">language</span>
+<span id="profileCardLanguage" class="font-label-md text-label-md text-on-surface">Preferred: English</span>
+</div>
+</div>
+<!-- Quick Stats / Badges (Optional Bento addition) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-gutter shadow-[0px_4px_20px_rgba(0,102,204,0.08)]">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-stack-md uppercase tracking-wider">Active Programs</h3>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-tertiary/10 text-tertiary px-3 py-1 rounded-full font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="auto_awesome">auto_awesome</span>
+                             AI Hypertension Care
+                         </span>
+<span class="inline-flex items-center gap-1 bg-secondary/10 text-secondary px-3 py-1 rounded-full font-label-sm text-label-sm">
+                             Dietary Tracking
+                         </span>
+</div>
+</div>
+</div>
+<!-- Right Column: Forms and Preferences -->
+<div class="lg:col-span-2 space-y-gutter">
+<!-- Personal Info Form -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-gutter shadow-[0px_4px_20px_rgba(0,102,204,0.08)]">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md flex items-center gap-2 border-b border-outline-variant/30 pb-4">
+<span class="material-symbols-outlined text-primary" data-icon="badge">badge</span>
+                        Personal Information
+                    </h2>
+<form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-stack-md" onsubmit="saveProfile(event)">
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block" for="fullName">Full Name</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" id="fullName" type="text" value="Alex Rivera"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block" for="patientId">Patient ID</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface" id="patientId" type="text" placeholder="e.g. HB-1001"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block" for="age">Age / DOB</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" id="age" type="text" value="42 (10/12/1981)"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block" for="primaryLanguage">Primary Language</label>
+<select class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none" id="primaryLanguage">
+<option value="en">English (US)</option>
+<option selected="" value="es">Spanish (Mexico)</option>
+<option value="fr">French (Canada)</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant block" for="commPref">Communication Preference</label>
+<select class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none" id="commPref">
+<option value="voice">Voice Call / AI Agent</option>
+<option selected="" value="sms">SMS Text Messaging</option>
+<option value="email">Email Updates</option>
+<option value="app">In-App Notifications Only</option>
+</select>
+</div>
+<div class="md:col-span-2 flex justify-end pt-2"><button type="submit" class="btn-primary">Save Profile</button></div>
+</form>
+</div>
+<!-- Accessibility Preferences -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-gutter shadow-[0px_4px_20px_rgba(0,102,204,0.08)] relative overflow-hidden">
+<!-- Subtle AI Background decorative element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md flex items-center gap-2 border-b border-outline-variant/30 pb-4 relative z-10">
+<span class="material-symbols-outlined text-primary" data-icon="accessibility_new">accessibility_new</span>
+                        Accessibility &amp; AI Preferences
+                    </h2>
+<div class="space-y-stack-md relative z-10">
+<!-- Voice Choice -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/50 hover:border-primary/30 transition-colors">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary mt-1" data-icon="record_voice_over">record_voice_over</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">AI Voice Choice</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Select the voice used by your virtual care assistant.</p>
+</div>
+</div>
+<select class="bg-surface-container border border-outline-variant rounded-lg px-3 py-1 font-label-sm text-label-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+<option>Calm Female (Default)</option>
+<option>Warm Male</option>
+<option>Direct &amp; Clear</option>
+</select>
+</div>
+<!-- Font Size -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/50 hover:border-primary/30 transition-colors">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary mt-1" data-icon="format_size">format_size</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Interface Font Size</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Adjust the text size for easier reading.</p>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container rounded-lg p-1 border border-outline-variant">
+<button class="p-1 hover:bg-surface-container-high rounded text-on-surface-variant"><span class="material-symbols-outlined text-[16px]" data-icon="remove">remove</span></button>
+<span class="font-label-md text-label-md px-2">Medium</span>
+<button class="p-1 hover:bg-surface-container-high rounded text-on-surface-variant"><span class="material-symbols-outlined text-[16px]" data-icon="add">add</span></button>
+</div>
+</div>
+<!-- Contrast Setting -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/50 hover:border-primary/30 transition-colors">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary mt-1" data-icon="contrast">contrast</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">High Contrast Mode</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Increase visual distinction between elements.</p>
+</div>
+</div>
+<!-- Custom Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="flex items-center justify-between pt-stack-sm">
+<p class="font-label-sm text-label-sm text-secondary flex items-center gap-1 opacity-0 transition-opacity duration-300" id="saveMessage">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span>
+                        Preferences updated successfully.
+                    </p>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-3 px-6 rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ml-auto" onclick="document.getElementById('saveMessage').classList.remove('opacity-0'); setTimeout(() =&gt; document.getElementById('saveMessage').classList.add('opacity-0'), 3000);">
+                        Save Changes
+                    </button>
+</div>
+</div>
+</div>
+</main></div>
+</section>
+
+<!-- Stitch Settings -->
+<section id="page-settings" class="page">
+<div class="w-full"><main class="flex-1 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+<div class="mb-stack-lg">
+<h2 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface mb-2">Accessibility Settings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Customize HealthBridge AI to make your experience more comfortable and accessible. These preferences apply across all your devices.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Primary Settings -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Language & Voice Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 card-shadow">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">translate</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Language &amp; Voice</h3>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-3">Preferred Interface Language</label>
+<div class="flex gap-4">
+<label class="flex-1 relative">
+<input checked="" class="peer sr-only" name="lang" type="radio" value="en"/>
+<div class="p-4 rounded-lg border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary-container/10 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high">
+<span class="font-label-md text-label-md text-on-surface peer-checked:text-primary peer-checked:font-bold">English</span>
+</div>
+</label>
+<label class="flex-1 relative">
+<input class="peer sr-only" name="lang" type="radio" value="ta"/>
+<div class="p-4 rounded-lg border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary-container/10 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high">
+<span class="font-label-md text-label-md text-on-surface peer-checked:text-primary peer-checked:font-bold">தமிழ் (Tamil)</span>
+</div>
+</label>
+</div>
+</div>
+<div class="pt-4 border-t border-surface-container-highest">
+<label class="block font-label-md text-label-md text-on-surface mb-3">Voice Assistant Type</label>
+<select class="w-full p-4 rounded-lg border-2 border-outline-variant bg-surface text-on-surface font-body-md text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
+<option value="calm_female">Calm &amp; Clear (Default)</option>
+<option value="warm_male">Warm &amp; Grounded</option>
+<option value="slow_paced">Slow-Paced Descriptive</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Visual & Contrast Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 card-shadow">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">visibility</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Visual Accessibility</h3>
+</div>
+<div class="space-y-8">
+<!-- Font Size -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-3">Interface Font Size</label>
+<div class="flex gap-2 sm:gap-4">
+<button class="flex-1 py-3 px-2 border-2 border-outline-variant rounded-lg font-body-md text-on-surface hover:bg-surface-container-high transition-colors">S</button>
+<button class="flex-1 py-3 px-2 border-2 border-primary bg-primary-container/10 rounded-lg font-body-md font-bold text-primary transition-colors">M</button>
+<button class="flex-1 py-3 px-2 border-2 border-outline-variant rounded-lg font-body-md text-on-surface hover:bg-surface-container-high transition-colors text-lg">L</button>
+<button class="flex-1 py-3 px-2 border-2 border-outline-variant rounded-lg font-body-md text-on-surface hover:bg-surface-container-high transition-colors text-xl font-semibold">XL</button>
+</div>
+</div>
+<!-- Toggles -->
+<div class="space-y-6 pt-4 border-t border-surface-container-highest">
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">High Contrast Mode</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Increase contrast between text and backgrounds for better legibility.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-surface-container-highest peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Dark Theme</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Switch to a darker color palette to reduce eye strain in low light.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-surface-container-highest peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Reduce Motion</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Minimize interface animations and transitions.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-surface-container-highest peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Secondary Settings & Info -->
+<div class="lg:col-span-4 space-y-gutter">
+<!-- Notifications Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 card-shadow">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">notifications_active</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Alerts &amp; Notifications</h3>
+</div>
+<div class="space-y-4">
+<label class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center h-6">
+<input checked="" class="w-5 h-5 text-primary bg-surface border-outline-variant rounded focus:ring-primary focus:ring-2" type="checkbox"/>
+</div>
+<div>
+<span class="block font-label-md text-label-md text-on-surface">Audio Alerts for Reminders</span>
+<span class="block font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">Play a soft tone when medication or appointment reminders occur.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center h-6">
+<input class="w-5 h-5 text-primary bg-surface border-outline-variant rounded focus:ring-primary focus:ring-2" type="checkbox"/>
+</div>
+<div>
+<span class="block font-label-md text-label-md text-on-surface">Haptic Feedback</span>
+<span class="block font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">Vibrate device on important alerts (mobile only).</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Privacy Summary Card -->
+<div class="bg-secondary-container rounded-xl p-6 border border-secondary-fixed-dim/30 shadow-sm relative overflow-hidden">
+<!-- Decorative subtle background shape -->
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-secondary-fixed rounded-full blur-2xl opacity-40 pointer-events-none"></div>
+<div class="flex items-center gap-2 mb-4 relative z-10">
+<span class="material-symbols-outlined text-on-secondary-container">shield_lock</span>
+<h3 class="font-headline-md text-headline-md text-on-secondary-container">Privacy First</h3>
+</div>
+<p class="font-body-md text-body-md text-on-secondary-container relative z-10 mb-4">
+                    Your accessibility preferences and voice data are processed securely on-device whenever possible. We never share your personal health settings with third parties.
+                </p>
+<button class="text-secondary font-label-md text-label-md flex items-center gap-1 hover:underline relative z-10">
+                    Read full Privacy Policy <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Save Actions (Mobile sticky bottom, Desktop standard) -->
+<div class="mt-8 pt-6 border-t border-surface-container-highest flex gap-4">
+<button class="flex-1 py-3 px-4 rounded-lg border-2 border-outline-variant text-on-surface font-label-md hover:bg-surface-container-high transition-colors text-center">
+                    Reset Defaults
+                </button>
+<button class="flex-1 py-3 px-4 rounded-lg bg-primary text-on-primary font-label-md hover:bg-primary/90 transition-colors shadow-sm text-center">
+                    Save Changes
+                </button>
+</div>
+</div>
+</div>
+<!-- Bottom padding for mobile scrolling -->
+<div class="h-24 md:h-0"></div>
+</main></div>
+</section>
+
+</main>
+
+<div class="mobile-nav">
+  <button onclick="showPage('dashboard')"><span class="material-symbols-outlined">dashboard</span>Home</button>
+  <button onclick="showPage('communication')"><span class="material-symbols-outlined">chat</span>Chat</button>
+  <button onclick="showPage('translation')"><span class="material-symbols-outlined">translate</span>Translate</button>
+  <button onclick="showPage('documents')"><span class="material-symbols-outlined">description</span>Docs</button>
+  <button onclick="showPage('settings')"><span class="material-symbols-outlined">settings</span>Settings</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================
+   HealthBridge AI - functional frontend
+   ========================= */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNaYifaoUxjovdX0cBS_DcgOHDA39r52uNyIQT7UvfbRyhjfj2JwiRPui7t1iXe2nHWg/exec"; // Paste your deployed Apps Script Web App URL here.
+const SESSION_KEY = "healthbridge_session_id";
+const PROFILE_KEY = "healthbridge_profile";
+const REMINDERS_KEY = "healthbridge_reminders";
+let recognition = null;
+let voiceListening = false;
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const target = document.getElementById("page-" + page);
+  if (target) target.classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.page === page));
+  window.scrollTo({top:0, behavior:"smooth"});
+  if(page === "profile") loadProfile();
+  if(page === "dashboard") renderReminders();
+}
+document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("click", () => showPage(btn.dataset.page)));
+function toast(message){ const el=document.getElementById("toast"); el.textContent=message; el.style.display="block"; clearTimeout(window.__toast); window.__toast=setTimeout(()=>el.style.display="none",2800); }
+function getSessionID(){ let id=localStorage.getItem(SESSION_KEY); if(!id){id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));localStorage.setItem(SESSION_KEY,id);} return id; }
+function escapeHtml(value){ return String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch])); }
+function formatAIResponse(text){
+  return escapeHtml(text)
+    .replace(/\\\*\\\*(.*?)\\\*\\\*/g, "<strong>$1</strong>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\\\*(.*?)\\\*/g, "<em>$1</em>")
+    .replace(/\n/g, "<br>");
+}
+async function postToAppsScript(action, data) {
+  if (!APPS_SCRIPT_URL) {
+    return {
+      success: false,
+      message: "Apps Script URL is not connected."
+    };
+  }
+
+  try {
+    const body = new URLSearchParams();
+
+    body.append("action", action);
+
+    Object.keys(data || {}).forEach(key => {
+      body.append(key, data[key] ?? "");
+    });
+
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      redirect: "follow",
+      body: body
+    });
+
+    const text = await response.text();
+
+    console.log("Apps Script response:", text);
+
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      return {
+        success: false,
+        message: "Apps Script returned an invalid response."
+      };
+    }
+
+  } catch (error) {
+    console.error("Apps Script error:", error);
+
+    return {
+      success: false,
+      message: "Could not connect to Apps Script: " + error.message
+    };
+  }
+}
+
+async function sendChat(){
+  const input=document.getElementById("chatInput"), text=input.value.trim(), box=document.getElementById("chatBox");
+  if(!text)return;
+  box.insertAdjacentHTML("beforeend",`<div class="msg user">${escapeHtml(text)}</div>`); input.value="";
+  const pending=document.createElement("div"); pending.className="msg ai"; pending.id="aiPending"; pending.innerHTML="<strong>HealthBridge AI</strong><br>Thinking..."; box.appendChild(pending); box.scrollTop=box.scrollHeight;
+  const result=await postToAppsScript("ai-chat",{userMessage:text,language:"English",sessionID:getSessionID()});
+  pending.remove();
+  const response = result.success
+  ? result.response
+  : result.message;
+  box.insertAdjacentHTML("beforeend",`<div class="msg ai"><strong>HealthBridge AI</strong><br>${formatAIResponse(response)}${result.success?`<br><button class="btn-secondary text-sm mt-2" onclick="speakText(${JSON.stringify(response)}, this)">🔊 Listen</button>`:""}</div>`); box.scrollTop=box.scrollHeight;
+}
+async function translateText(){
+  const text=document.getElementById("translationInput").value.trim(), from=document.getElementById("sourceLanguage").value, to=document.getElementById("targetLanguage").value, out=document.getElementById("translationOutput");
+  if(!text){out.textContent="Please enter a message first.";return;}
+  out.textContent="Translating...";
+  const result=await postToAppsScript("translate",{originalText:text,sourceLanguage:from,targetLanguage:to,sessionID:getSessionID()});
+  out.textContent=result.success?result.translation:(APPS_SCRIPT_URL?"Translation service unavailable.":`Connect Apps Script to translate: ${text}`);
+  if(result.success) postToAppsScript("save-translation",{originalText:text,translatedText:result.translation,sourceLanguage:from,targetLanguage:to,sessionID:getSessionID()});
+}
+function startSpeechInput(){ startRecognition("chatInput",false); }
+function startRecognition(targetId, autoSend) {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    toast("Voice input is not supported in this browser. Try Chrome or Edge.");
+    return;
+  }
+
+  if (recognition) {
+    try {
+      recognition.stop();
+    } catch (e) {}
+  }
+
+  recognition = new SpeechRecognition();
+
+  recognition.lang ="en-IN";
+
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    voiceListening = true;
+    updateVoiceUI(true);
+    toast("Listening...");
+  };
+
+  recognition.onresult = (e) => {
+    let finalText = "";
+
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const transcript = e.results[i][0].transcript;
+
+      if (e.results[i].isFinal) {
+        finalText += transcript;
+      }
+    }
+
+    if (finalText.trim()) {
+      const input = document.getElementById(targetId);
+
+      if (input) {
+        input.value = finalText.trim();
+      }
+
+      if (autoSend) {
+        sendVoiceText(finalText.trim());
+      } else {
+        toast("Voice captured");
+      }
+    }
+  };
+
+  recognition.onerror = (e) => {
+    console.log("Speech recognition error:", e.error);
+
+    if (e.error !== "no-speech" && e.error !== "aborted") {
+      toast("Voice error: " + e.error);
+    }
+  };
+
+  recognition.onend = () => {
+    /*
+     * Keep Voice Assistant listening.
+     * Chrome may automatically end recognition after silence.
+     */
+    if (voiceListening && autoSend) {
+      setTimeout(() => {
+        if (voiceListening) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.log("Recognition restart:", e);
+          }
+        }
+      }, 300);
+    } else {
+      voiceListening = false;
+      updateVoiceUI(false);
+    }
+  };
+
+  recognition.start();
+}
+function toggleVoiceAssistant(){ if(voiceListening){try{recognition.stop();}catch(e){}voiceListening=false;updateVoiceUI(false);return;} voiceListening=true;updateVoiceUI(true);startRecognition("voiceInput",true); }
+function updateVoiceUI(listening){const s=document.getElementById("voiceStatus"),b=document.getElementById("voiceMicButton");if(s)s.textContent=listening?"Listening...":"Tap to speak";if(b)b.querySelector("span").textContent=listening?"stop":"mic";}
+async function sendVoiceText(textOverride){const input=document.getElementById("voiceInput"),text=(textOverride||input.value).trim();if(!text)return;input.value="";const log=document.querySelector("#page-voice .lg\\:col-span-7 .flex-1");if(log){log.insertAdjacentHTML("beforeend",`<div class="flex flex-col items-end"><span class="font-label-sm text-on-surface-variant">You</span><div class="bg-primary-container text-on-primary px-4 py-3 rounded-2xl rounded-tr-sm max-w-[85%]">${escapeHtml(text)}</div></div>`);}
+  const result=await postToAppsScript("ai-chat",{userMessage:text,language:"English",sessionID:getSessionID()}); const response=result.success?result.response:(APPS_SCRIPT_URL?"AI service unavailable.":"Connect Apps Script to activate the voice AI.");
+  if(log){log.insertAdjacentHTML("beforeend",`<div class="flex flex-col items-start"><span class="font-label-sm text-on-surface-variant">HealthBridge AI</span><div class="bg-surface-container text-on-surface px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%]">${formatAIResponse(response)}<br><button class="btn-secondary text-sm mt-2" onclick="speakText(${JSON.stringify(response)}, this)">🔊 Listen</button></div></div>`);log.scrollTop=log.scrollHeight;}
+  speakText(response);
+}
+let currentSpeechButton = null;
+
+function cleanTextForSpeech(text) {
+  return String(text)
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`{1,3}/g, "")
+    .replace(/#{1,6}\s?/g, "")
+    .replace(/^\s*[-•]\s?/gm, "")
+    .replace(/\n+/g, ". ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
+
+
+function speakText(text, button) {
+  if (!("speechSynthesis" in window)) {
+    toast("Text-to-speech is not supported in this browser.");
+    return;
+  }
+
+  // STOP CURRENT SPEECH
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+
+    if (currentSpeechButton) {
+      currentSpeechButton.textContent = "🔊 Listen";
+      currentSpeechButton = null;
+    }
+
+    return;
+  }
+
+  const cleanText = cleanTextForSpeech(text);
+  if (!cleanText) return;
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+
+  const voiceSetting =
+    localStorage.getItem("healthbridge_voice") || "calm_female";
+
+  const language =
+    localStorage.getItem("healthbridge_language") || "English";
+
+  utterance.lang =
+    language.toLowerCase().includes("tamil")
+      ? "ta-IN"
+      : "en-IN";
+
+  const voices = speechSynthesis.getVoices();
+
+  let preferred;
+
+  if (language.toLowerCase().includes("tamil")) {
+    preferred = voices.find(v =>
+      /ta-IN|tamil/i.test(v.lang + " " + v.name)
+    );
+  } else {
+    preferred =
+      voices.find(v =>
+        voiceSetting.includes("female") &&
+        /female|samantha|zira|google uk english female/i.test(v.name)
+      ) ||
+      voices.find(v =>
+        voiceSetting.includes("male") &&
+        /male|david|google uk english male/i.test(v.name)
+      ) ||
+      voices.find(v => /^en-IN/i.test(v.lang));
+  }
+
+  if (preferred) {
+    utterance.voice = preferred;
+  }
+
+  utterance.rate =
+    voiceSetting === "slow_paced" ? 0.85 : 0.98;
+
+  currentSpeechButton = button || null;
+
+  if (currentSpeechButton) {
+    currentSpeechButton.textContent = "⏹ Stop";
+  }
+
+  utterance.onend = function () {
+    if (currentSpeechButton) {
+      currentSpeechButton.textContent = "🔊 Listen";
+      currentSpeechButton = null;
+    }
+  };
+
+  utterance.onerror = function () {
+    if (currentSpeechButton) {
+      currentSpeechButton.textContent = "🔊 Listen";
+      currentSpeechButton = null;
+    }
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function profileData(){return {fullName:document.getElementById("fullName")?.value.trim()||"",patientId:document.getElementById("patientId")?.value.trim()||"",age:document.getElementById("age")?.value.trim()||"",primaryLanguage:document.getElementById("primaryLanguage")?.value||"en",communicationPreference:document.getElementById("commPref")?.value||"app"};}
+function loadProfile(){const p=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}"); if(p.fullName)document.getElementById("fullName").value=p.fullName;if(p.patientId)document.getElementById("patientId").value=p.patientId;if(p.age)document.getElementById("age").value=p.age;if(p.primaryLanguage)document.getElementById("primaryLanguage").value=p.primaryLanguage;if(p.communicationPreference)document.getElementById("commPref").value=p.communicationPreference;updateProfileCard(p);}
+function updateProfileCard(p){document.getElementById("profileCardName").textContent=p.fullName||"Your Name";document.getElementById("profileCardId").textContent=p.patientId||"Not set";const labels={en:"English",ta:"Tamil",hi:"Hindi",es:"Spanish",fr:"French"};document.getElementById("profileCardLanguage").textContent="Preferred: "+(labels[p.primaryLanguage]||p.primaryLanguage||"English");}
+async function saveProfile(e){e.preventDefault();const p=profileData();if(!p.fullName){toast("Please enter your name.");return;}localStorage.setItem(PROFILE_KEY,JSON.stringify(p));updateProfileCard(p);const result=await postToAppsScript("save-profile",{...p,profileID:p.patientId||getSessionID()});toast(result.success?"Profile saved successfully.":"Profile saved on this device. Connect Apps Script to sync it.");}
+
+function getReminders(){return JSON.parse(localStorage.getItem(REMINDERS_KEY)||"[]");}
+function addReminder(){const name=document.getElementById("alarmName").value.trim(),time=document.getElementById("alarmTime").value;if(!name||!time){toast("Enter a reminder name and time.");return;}const arr=getReminders();arr.push({id:Date.now(),name,time,lastTriggered:""});localStorage.setItem(REMINDERS_KEY,JSON.stringify(arr));document.getElementById("alarmName").value="";renderReminders();requestNotificationPermission();toast("Reminder set for "+time);}
+function deleteReminder(id){localStorage.setItem(REMINDERS_KEY,JSON.stringify(getReminders().filter(r=>r.id!==id)));renderReminders();}
+function renderReminders(){const box=document.getElementById("reminderList"),status=document.getElementById("alarmStatus");if(!box)return;const arr=getReminders();status.textContent=arr.length?arr.length+" active":"Ready";box.innerHTML=arr.length?arr.map(r=>`<div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface-container-low"><div><strong>${escapeHtml(r.name)}</strong><span class="text-sm text-on-surface-variant ml-2">${escapeHtml(r.time)}</span></div><button class="text-primary font-semibold" onclick="deleteReminder(${r.id})">Remove</button></div>`).join(""):"<p class=\"text-sm text-on-surface-variant\">No reminders yet.</p>";}
+async function requestNotificationPermission(){if("Notification" in window&&Notification.permission==="default")try{await Notification.requestPermission();}catch(e){}}
+function checkReminders(){const now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),key=hh+":"+mm;let arr=getReminders(),changed=false;arr.forEach(r=>{if(r.time===key&&r.lastTriggered!==now.toDateString()){r.lastTriggered=now.toDateString();changed=true;triggerReminder(r);}});if(changed)localStorage.setItem(REMINDERS_KEY,JSON.stringify(arr));}
+function triggerReminder(r){toast("Reminder: "+r.name);if("Notification" in window&&Notification.permission==="granted")new Notification("HealthBridge Reminder",{body:r.name+" — "+r.time});try{const C=window.AudioContext||window.webkitAudioContext;if(C){const c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=.08;o.start();o.stop(c.currentTime+.6);}}catch(e){}}
+setInterval(checkReminders,10000);
+
+document.addEventListener("change",e=>{if(e.target.matches('input[type="checkbox"]')){const label=e.target.closest("label");if(label&&/dark|theme/i.test(label.innerText||""))document.documentElement.classList.toggle("dark",e.target.checked);}});
+
+document.addEventListener("DOMContentLoaded",()=>{loadProfile();renderReminders();const voiceSelect=document.querySelector('#page-profile select');if(voiceSelect)voiceSelect.addEventListener('change',()=>localStorage.setItem('healthbridge_voice',voiceSelect.value));});
+</script>
+</body>
+</html>
